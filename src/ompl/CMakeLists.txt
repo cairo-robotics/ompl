@@ -81,7 +81,7 @@ endif(MSVC)
 
 # install the library
 install(TARGETS ompl
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    DESTINATION /opt/ros/kinetic/lib/x86_64-linux-gnu 
     COMPONENT ompl)
 if(NOT MSVC)
     add_custom_command(TARGET ompl POST_BUILD

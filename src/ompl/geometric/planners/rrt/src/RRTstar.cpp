@@ -206,7 +206,8 @@ ompl::base::PlannerStatus ompl::geometric::RRTstar::solve(const base::PlannerTer
     {
         allocSampler();
     }
-
+ 
+    OMPL_INFORM("HELLO WORLD!!!");
     OMPL_INFORM("%s: Starting planning with %u states already in datastructure", getName().c_str(), nn_->size());
 
     if ((useTreePruning_ || useRejectionSampling_ || useInformedSampling_ || useNewStateRejection_) && !si_->getStateSpace()->isMetricSpace())
