@@ -30,3 +30,8 @@ following commands:
     # next step is optional
     make -j 4 update_bindings # if you want Python bindings
     make -j 4 # replace "4" with the number of cores on your machine
+    
+    
+Notes for CAIRO:
+================
+Directory for demo changes is: /opt/ros/kinetic/share/panda_moveit_config
