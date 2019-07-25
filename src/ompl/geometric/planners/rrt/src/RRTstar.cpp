@@ -89,6 +89,7 @@ ompl::geometric::RRTstar::RRTstar(const base::SpaceInformationPtr &si) :
     Planner::declareParam<bool>("use_admissible_heuristic", this, &RRTstar::setAdmissibleCostToCome, &RRTstar::getAdmissibleCostToCome, "0,1");
     Planner::declareParam<bool>("focus_search", this, &RRTstar::setFocusSearch, &RRTstar::getFocusSearch, "0,1");
     Planner::declareParam<bool>("number_sampling_attempts", this, &RRTstar::setNumSamplingAttempts, &RRTstar::getNumSamplingAttempts, "10:10:100000");
+    // Planner::declareParam<double>("test_param", this, &RRTstar::setTestParam, &RRTstar::getTestParam, "0.:.05:1.0");
 
     addPlannerProgressProperty("iterations INTEGER",
                                std::bind(&RRTstar::numIterationsProperty, this));
@@ -208,6 +209,7 @@ ompl::base::PlannerStatus ompl::geometric::RRTstar::solve(const base::PlannerTer
     }
  
     OMPL_INFORM("HELLO WORLD!!!");
+    // OMPL_INFORM("This is the test param: %d", getTestParam());
     OMPL_INFORM("%s: Starting planning with %u states already in datastructure", getName().c_str(), nn_->size());
 
     if ((useTreePruning_ || useRejectionSampling_ || useInformedSampling_ || useNewStateRejection_) && !si_->getStateSpace()->isMetricSpace())

@@ -42,8 +42,7 @@
 #include "ompl/base/samplers/informed/RejectionInfSampler.h"
 #endif
 
-ompl::base::PathLengthOptimizationObjective::
-PathLengthOptimizationObjective(const SpaceInformationPtr &si) :
+ompl::base::PathLengthOptimizationObjective::PathLengthOptimizationObjective(const SpaceInformationPtr &si) :
     ompl::base::OptimizationObjective(si)
 {
     description_ = "Path Length";
