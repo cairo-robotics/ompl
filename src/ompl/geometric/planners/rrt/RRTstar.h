@@ -291,18 +291,17 @@ namespace ompl
                 return numSampleAttempts_ ;
             }
 
-            /** \brief Set the test param */
-            void setTestParam(const double  testParam)
-            {
-                testParam_ = testParam;
-            }
+            // /** \brief Set the test param */
+            // void setTestParam(const double  testParam)
+            // {
+            //     testParam_ = testParam;
+            // }
 
-            /** \brief Get the test param */
-            double  getTestParam() const
-            {
-                return testParam_ ;
-            }
-
+            // /** \brief Get the test param */
+            // double  getTestParam() const
+            // {
+            //     return testParam_ ;
+            // }
 
             unsigned int numIterations() const
             {
@@ -471,8 +470,8 @@ namespace ompl
             /** \brief The number of attempts to make at informed sampling */
             unsigned int                                   numSampleAttempts_;
 
-            /** \brief Test param */
-            double                                         testParam_;
+            // /** \brief Test param */
+            // double                                         testParam_;
 
             /** \brief Stores the start states as Motions. */
             std::vector<Motion*>                           startMotions_;
