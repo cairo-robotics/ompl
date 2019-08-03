@@ -34,33 +34,34 @@
 
 /* Author: Luis G. Torres */
 
-#include "ompl/base/objectives/NewMaximizeMinClearanceObjective.h"
-#include "ompl/tools/config/MagicConstants.h"
-#include <limits>
+#ifndef OMPL_BASE_OBJECTIVES_CLEARANCE_LIMIT_OBJECTIVE_
+#define OMPL_BASE_OBJECTIVES_CLEARANCE_LIMIT_OBJECTIVE_
 
-ompl::base::NewMaximizeMinClearanceObjective::
-NewMaximizeMinClearanceObjective(const SpaceInformationPtr &si) :
-    MinimaxObjective(si)
+#include "ompl/base/objectives/MinimaxObjective.h"
+
+namespace ompl
 {
-    this->setCostThreshold(Cost(std::numeric_limits<double>::infinity()));
+    namespace base
+    {
+        /** \brief Objective for attempting to maximize the minimum clearance along a path. */
+        class ClearanceLimitObjective : public MinimaxObjective
+        {
+        public:
+            ClearanceLimitObjective(const SpaceInformationPtr &si);
+
+            /** \brief Defined as the clearance of the state \e s, which is computed using the StateValidityChecker in this objective's SpaceInformation */
+            virtual Cost stateCost(const State *s) const;
+
+            /** \brief Since we wish to maximize clearance, and costs are equivalent to path clearance, we return the greater of the two cost values. */
+            virtual bool isCostBetterThan(Cost c1, Cost c2) const;
+
+            /** \brief Returns +infinity, since any cost combined with +infinity under this objective will always return the other cost. */
+            virtual Cost identityCost() const;
+
+            /** \brief Returns -infinity, since no path clearance value can be considered worse than this. */
+            virtual Cost infiniteCost() const;
+        };
+    }
 }
 
-ompl::base::Cost ompl::base::NewMaximizeMinClearanceObjective::stateCost(const State *s) const
-{
-    return Cost(si_->getStateValidityChecker()->clearance(s));
-}
-
-bool ompl::base::NewMaximizeMinClearanceObjective::isCostBetterThan(Cost c1, Cost c2) const
-{
-    return c1.value() > c2.value();
-}
-
-ompl::base::Cost ompl::base::NewMaximizeMinClearanceObjective::identityCost() const
-{
-    return Cost(std::numeric_limits<double>::infinity());
-}
-
-ompl::base::Cost ompl::base::NewMaximizeMinClearanceObjective::infiniteCost() const
-{
-    return Cost(-std::numeric_limits<double>::infinity());
-}
+#endif

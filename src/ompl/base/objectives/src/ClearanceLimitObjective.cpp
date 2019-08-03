@@ -34,34 +34,49 @@
 
 /* Author: Luis G. Torres */
 
-#ifndef OMPL_BASE_OBJECTIVES_NEW_MAXIMIZE_MIN_CLEARANCE_OBJECTIVE_
-#define OMPL_BASE_OBJECTIVES_NEW_MAXIMIZE_MIN_CLEARANCE_OBJECTIVE_
+#include "ompl/base/objectives/ClearanceLimitObjective.h"
+#include "ompl/tools/config/MagicConstants.h"
+#include <limits>
+#include <iostream>
 
-#include "ompl/base/objectives/MinimaxObjective.h"
+using namespace std;
 
-namespace ompl
+ompl::base::ClearanceLimitObjective::
+ClearanceLimitObjective(const SpaceInformationPtr &si) :
+    MinimaxObjective(si)
 {
-    namespace base
-    {
-        /** \brief Objective for attempting to maximize the minimum clearance along a path. */
-        class NewMaximizeMinClearanceObjective : public MinimaxObjective
-        {
-        public:
-            NewMaximizeMinClearanceObjective(const SpaceInformationPtr &si);
-
-            /** \brief Defined as the clearance of the state \e s, which is computed using the StateValidityChecker in this objective's SpaceInformation */
-            virtual Cost stateCost(const State *s) const;
-
-            /** \brief Since we wish to maximize clearance, and costs are equivalent to path clearance, we return the greater of the two cost values. */
-            virtual bool isCostBetterThan(Cost c1, Cost c2) const;
-
-            /** \brief Returns +infinity, since any cost combined with +infinity under this objective will always return the other cost. */
-            virtual Cost identityCost() const;
-
-            /** \brief Returns -infinity, since no path clearance value can be considered worse than this. */
-            virtual Cost infiniteCost() const;
-        };
-    }
+    this->setCostThreshold(Cost(std::numeric_limits<double>::infinity()));
 }
 
-#endif
+ompl::base::Cost ompl::base::ClearanceLimitObjective::stateCost(const State *s) const
+{
+    double clearance = si_->getStateValidityChecker()->clearance(s);
+    cout << "Clearance: ";
+    cout << clearance << endl;
+    ompl::base::Cost cost = Cost(0.0);
+    if (clearance > 500.0)
+    {
+        cost = Cost(clearance);
+    }
+    else
+    {
+        cost = infiniteCost();
+    }
+
+    return cost;
+}
+
+bool ompl::base::ClearanceLimitObjective::isCostBetterThan(Cost c1, Cost c2) const
+{
+    return c1.value() > c2.value();
+}
+
+ompl::base::Cost ompl::base::ClearanceLimitObjective::identityCost() const
+{
+    return Cost(std::numeric_limits<double>::infinity());
+}
+
+ompl::base::Cost ompl::base::ClearanceLimitObjective::infiniteCost() const
+{
+    return Cost(-std::numeric_limits<double>::infinity());
+}
