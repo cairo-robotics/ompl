@@ -38,32 +38,66 @@
 #include "ompl/tools/config/MagicConstants.h"
 #include <limits>
 #include <iostream>
+#include <python2.7/Python.h>
+#include <stdlib.h>
 
 using namespace std;
+
+PyObject *pName, *pModule, *pDict, *pFunc;
 
 ompl::base::ClearanceLimitObjective::
 ClearanceLimitObjective(const SpaceInformationPtr &si) :
     MinimaxObjective(si)
 {
     this->setCostThreshold(Cost(std::numeric_limits<double>::infinity()));
+    this->setPython();
+}
+
+void ompl::base::ClearanceLimitObjective::setPython()
+{
+    // Set PYTHONPATH TO working directory
+    setenv("PYTHONPATH",".",1);
+    Py_Initialize();
+    PyObject* sysPath = PySys_GetObject((char*)"path");
+    PyList_Append(sysPath, PyString_FromString("/home/jgkawell/ws_moveit/test"));
+
+    // Reference the python module to call
+    pName = PyString_FromString((char*)"python_test");
+    pModule = PyImport_Import(pName);
+    pDict = PyModule_GetDict(pModule);
+    pFunc = PyDict_GetItemString(pDict, (char*)"test");
 }
 
 ompl::base::Cost ompl::base::ClearanceLimitObjective::stateCost(const State *s) const
 {
-    double clearance = si_->getStateValidityChecker()->clearance(s);
-    cout << "Clearance: ";
-    cout << clearance << endl;
-    ompl::base::Cost cost = Cost(0.0);
-    if (clearance > 500.0)
+    try
     {
-        cost = Cost(clearance);
+        // Instantiate python objects
+        PyObject *pValue, *pResult;
+        
+        // Try making python call
+        if (PyCallable_Check(pFunc))
+        {
+            pValue=Py_BuildValue("(z)",(char*)"HELLO WORLD");
+            pResult=PyObject_CallObject(pFunc,pValue);
+        } else 
+        {
+            PyErr_Print();
+        }
+
+        // Cleanup
+        Py_DECREF(pResult);
+        Py_DECREF(pValue);
+
     }
-    else
+    catch (int e)
     {
-        cost = infiniteCost();
+        cout << "An exception occurred. Exception Nr. " << e << '\n';
+        return Cost(si_->getStateValidityChecker()->clearance(s));
     }
 
-    return cost;
+
+    return Cost(si_->getStateValidityChecker()->clearance(s));
 }
 
 bool ompl::base::ClearanceLimitObjective::isCostBetterThan(Cost c1, Cost c2) const
