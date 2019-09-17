@@ -34,7 +34,7 @@
 
 /* Author: Luis G. Torres */
 
-#include "ompl/base/objectives/ClearanceLimitObjective.h"
+#include "ompl/base/objectives/CustomObjective.h"
 #include "ompl/tools/config/MagicConstants.h"
 #include <limits>
 #include <iostream>
@@ -45,15 +45,15 @@ using namespace std;
 
 PyObject *pName, *pModule, *pDict, *pFunc;
 
-ompl::base::ClearanceLimitObjective::
-ClearanceLimitObjective(const SpaceInformationPtr &si) :
+ompl::base::CustomObjective::
+CustomObjective(const SpaceInformationPtr &si) :
     MinimaxObjective(si)
 {
     this->setCostThreshold(Cost(std::numeric_limits<double>::infinity()));
     this->setPython();
 }
 
-void ompl::base::ClearanceLimitObjective::setPython()
+void ompl::base::CustomObjective::setPython()
 {
     // Set PYTHONPATH TO working directory
     setenv("PYTHONPATH",".",1);
@@ -68,7 +68,7 @@ void ompl::base::ClearanceLimitObjective::setPython()
     pFunc = PyDict_GetItemString(pDict, (char*)"test");
 }
 
-ompl::base::Cost ompl::base::ClearanceLimitObjective::stateCost(const State *s) const
+ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 {
     try
     {
@@ -100,17 +100,17 @@ ompl::base::Cost ompl::base::ClearanceLimitObjective::stateCost(const State *s) 
     return Cost(si_->getStateValidityChecker()->clearance(s));
 }
 
-bool ompl::base::ClearanceLimitObjective::isCostBetterThan(Cost c1, Cost c2) const
+bool ompl::base::CustomObjective::isCostBetterThan(Cost c1, Cost c2) const
 {
     return c1.value() > c2.value();
 }
 
-ompl::base::Cost ompl::base::ClearanceLimitObjective::identityCost() const
+ompl::base::Cost ompl::base::CustomObjective::identityCost() const
 {
     return Cost(std::numeric_limits<double>::infinity());
 }
 
-ompl::base::Cost ompl::base::ClearanceLimitObjective::infiniteCost() const
+ompl::base::Cost ompl::base::CustomObjective::infiniteCost() const
 {
     return Cost(-std::numeric_limits<double>::infinity());
 }

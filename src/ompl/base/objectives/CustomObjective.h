@@ -34,8 +34,8 @@
 
 /* Author: Luis G. Torres */
 
-#ifndef OMPL_BASE_OBJECTIVES_CLEARANCE_LIMIT_OBJECTIVE_
-#define OMPL_BASE_OBJECTIVES_CLEARANCE_LIMIT_OBJECTIVE_
+#ifndef OMPL_BASE_OBJECTIVES_CUSTOM_OBJECTIVE_
+#define OMPL_BASE_OBJECTIVES_CUSTOM_OBJECTIVE_
 
 #include "ompl/base/objectives/MinimaxObjective.h"
 
@@ -44,12 +44,12 @@ namespace ompl
     namespace base
     {
         /** \brief Objective for attempting to maximize the minimum clearance along a path. */
-        class ClearanceLimitObjective : public MinimaxObjective
+        class CustomObjective : public MinimaxObjective
         {
 
 
         public:
-            ClearanceLimitObjective(const SpaceInformationPtr &si);
+            CustomObjective(const SpaceInformationPtr &si);
 
             virtual void setPython();
 
