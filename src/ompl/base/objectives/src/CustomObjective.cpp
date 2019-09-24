@@ -36,10 +36,12 @@
 
 #include "ompl/base/objectives/CustomObjective.h"
 #include "ompl/tools/config/MagicConstants.h"
-#include <limits>
+#include <fstream>
 #include <iostream>
+#include <limits>
 #include <python2.7/Python.h>
 #include <stdlib.h>
+#include <string>
 
 using namespace std;
 
@@ -55,49 +57,91 @@ CustomObjective(const SpaceInformationPtr &si) :
 
 void ompl::base::CustomObjective::setPython()
 {
-    // Set PYTHONPATH TO working directory
-    setenv("PYTHONPATH",".",1);
-    Py_Initialize();
-    PyObject* sysPath = PySys_GetObject((char*)"path");
-    PyList_Append(sysPath, PyString_FromString("/home/jgkawell/ws_moveit/test"));
+    string directory, file, function, line;
+    const string configFilePath = "/home/jgkawell/ws_moveit/config/planning.cfg";
+    ifstream configFile (configFilePath);
+    if (configFile.is_open())
+    {
+        int lineNum = 0;
+        while (getline(configFile, line))
+        {
+            switch (lineNum)
+            {
+                case 0:
+                    // Skip first line since it's just a comment
+                    break;
+                case 1:
+                    directory = line;
+                    OMPL_INFORM("Python Directory: %s", directory.c_str());
+                    break;
+                case 2:
+                    file = line;
+                    OMPL_INFORM("Python File Name: %s", file.c_str());
+                    break;
+                case 3:
+                    function = line;
+                    OMPL_INFORM("Python Function Name: %s", function.c_str());
+                    break;
+                default:
+                    OMPL_WARN("Not a valid configuration line: %d", lineNum);
+            }
+            lineNum += 1;
+        }
+        configFile.close();
 
-    // Reference the python module to call
-    pName = PyString_FromString((char*)"python_test");
-    pModule = PyImport_Import(pName);
-    pDict = PyModule_GetDict(pModule);
-    pFunc = PyDict_GetItemString(pDict, (char*)"test");
+        // Set PYTHONPATH TO working directory
+        setenv("PYTHONPATH",".",1);
+        Py_Initialize();
+        PyObject* sysPath = PySys_GetObject((char*)"path");
+        PyList_Append(sysPath, PyString_FromString(directory.c_str()));
+
+        // Reference the python module to call
+        pName = PyString_FromString((char*)file.c_str());
+        pModule = PyImport_Import(pName);
+        pDict = PyModule_GetDict(pModule);
+        pFunc = PyDict_GetItemString(pDict, (char*)function.c_str());
+    }
+    else
+    {
+        OMPL_ERROR("Unable to open Python config file at path: %s", configFilePath); 
+    }
 }
 
 ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 {
+    double cResult;
+
     try
     {
-        // Instantiate python objects
-        PyObject *pValue, *pResult;
-        
         // Try making python call
         if (PyCallable_Check(pFunc))
         {
-            pValue=Py_BuildValue("(z)",(char*)"HELLO WORLD");
-            pResult=PyObject_CallObject(pFunc,pValue);
-        } else 
+            // Get cost from Python module
+            PyObject *pResult = PyObject_CallObject(pFunc, 0);
+
+            // Convert Python float to C++ double
+            cResult = PyFloat_AsDouble(pResult);
+            if (PyErr_Occurred())
+            {
+                OMPL_ERROR("Something broke in Python to C++ conversion!");
+            }
+            
+            // Cleanup
+            Py_DECREF(pResult);
+        }
+        else 
         {
             PyErr_Print();
         }
 
-        // Cleanup
-        Py_DECREF(pResult);
-        Py_DECREF(pValue);
-
     }
     catch (int e)
     {
-        cout << "An exception occurred. Exception Nr. " << e << '\n';
+        OMPL_ERROR("An exception occurred: %d ", e);
         return Cost(si_->getStateValidityChecker()->clearance(s));
     }
 
-
-    return Cost(si_->getStateValidityChecker()->clearance(s));
+    return Cost(cResult);
 }
 
 bool ompl::base::CustomObjective::isCostBetterThan(Cost c1, Cost c2) const
