@@ -124,6 +124,29 @@ if (FLANN_FOUND)
     link_directories(${FLANN_LIBRARY_DIRS})
 endif()
 
+# Add ROS to OMPL for CustomObjective
+find_package(catkin REQUIRED COMPONENTS
+  roscpp
+  rospy
+  std_msgs
+  message_generation
+  custom_planners
+)
+
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
+
+add_service_files(
+  FILES
+  CustomCost.srv
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
+
 # R is needed for running Planner Arena locally
 find_program(R_EXEC R)
 

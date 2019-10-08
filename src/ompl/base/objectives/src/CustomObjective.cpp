@@ -43,6 +43,11 @@
 #include <stdlib.h>
 #include <string>
 
+// ROS Client/Server
+#include "ros/ros.h"
+#include "ompl/CustomCost.h"
+#include <cstdlib>
+
 using namespace std;
 
 PyObject *pName, *pModule, *pDict, *pFunc;
@@ -52,96 +57,27 @@ CustomObjective(const SpaceInformationPtr &si) :
     MinimaxObjective(si)
 {
     this->setCostThreshold(Cost(std::numeric_limits<double>::infinity()));
-    this->setPython();
-}
-
-void ompl::base::CustomObjective::setPython()
-{
-    string directory, file, function, line;
-    const string configFilePath = "/home/jgkawell/ws_moveit/config/planning.cfg";
-    ifstream configFile (configFilePath);
-    if (configFile.is_open())
-    {
-        int lineNum = 0;
-        while (getline(configFile, line))
-        {
-            switch (lineNum)
-            {
-                case 0:
-                    // Skip first line since it's just a comment
-                    break;
-                case 1:
-                    directory = line;
-                    OMPL_INFORM("Python Directory: %s", directory.c_str());
-                    break;
-                case 2:
-                    file = line;
-                    OMPL_INFORM("Python File Name: %s", file.c_str());
-                    break;
-                case 3:
-                    function = line;
-                    OMPL_INFORM("Python Function Name: %s", function.c_str());
-                    break;
-                default:
-                    OMPL_WARN("Not a valid configuration line: %d", lineNum);
-            }
-            lineNum += 1;
-        }
-        configFile.close();
-
-        // Set PYTHONPATH TO working directory
-        setenv("PYTHONPATH",".",1);
-        Py_Initialize();
-        PyObject* sysPath = PySys_GetObject((char*)"path");
-        PyList_Append(sysPath, PyString_FromString(directory.c_str()));
-
-        // Reference the python module to call
-        pName = PyString_FromString((char*)file.c_str());
-        pModule = PyImport_Import(pName);
-        pDict = PyModule_GetDict(pModule);
-        pFunc = PyDict_GetItemString(pDict, (char*)function.c_str());
-    }
-    else
-    {
-        OMPL_ERROR("Unable to open Python config file at path: %s", configFilePath); 
-    }
 }
 
 ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 {
-    double cResult;
 
-    try
+    ros::NodeHandle n;
+    ros::ServiceClient client = n.serviceClient<ompl::CustomCost>("custom_cost");
+    ompl::CustomCost srv;
+    float costValue;
+    if (client.call(srv))
     {
-        // Try making python call
-        if (PyCallable_Check(pFunc))
-        {
-            // Get cost from Python module
-            PyObject *pResult = PyObject_CallObject(pFunc, 0);
-
-            // Convert Python float to C++ double
-            cResult = PyFloat_AsDouble(pResult);
-            if (PyErr_Occurred())
-            {
-                OMPL_ERROR("Something broke in Python to C++ conversion!");
-            }
-            
-            // Cleanup
-            Py_DECREF(pResult);
-        }
-        else 
-        {
-            PyErr_Print();
-        }
-
+        ROS_INFO("Cost: %f", (float)srv.response.cost);
+        costValue = srv.response.cost;
     }
-    catch (int e)
+    else
     {
-        OMPL_ERROR("An exception occurred: %d ", e);
-        return Cost(si_->getStateValidityChecker()->clearance(s));
+        ROS_ERROR("Failed to call service custom_cost. Using clearance instead.");
+        costValue = si_->getStateValidityChecker()->clearance(s);
     }
-
-    return Cost(cResult);
+    
+    return Cost(costValue);
 }
 
 bool ompl::base::CustomObjective::isCostBetterThan(Cost c1, Cost c2) const

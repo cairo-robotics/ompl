@@ -51,8 +51,6 @@ namespace ompl
         public:
             CustomObjective(const SpaceInformationPtr &si);
 
-            virtual void setPython();
-
             /** \brief Defined as the clearance of the state \e s, which is computed using the StateValidityChecker in this objective's SpaceInformation */
             virtual Cost stateCost(const State *s) const;
 

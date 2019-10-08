@@ -68,7 +68,8 @@ target_link_libraries(ompl
   ${Boost_SYSTEM_LIBRARY}
   ${Boost_CHRONO_LIBRARY}
   ${CMAKE_THREAD_LIBS_INIT}
-  ${PYTHON_LIBRARIES})
+  ${PYTHON_LIBRARIES}
+  ${catkin_LIBRARIES})
 
 if(MSVC)
   set_target_properties(ompl PROPERTIES VERSION "${OMPL_VERSION}" STATIC_LIBRARY_FLAGS "psapi.lib ws2_32.lib")
