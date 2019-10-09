@@ -32,28 +32,51 @@ following commands:
     make -j 4 # replace "4" with the number of cores on your machine
     
     
-Notes for CAIRO:
-================
+##  Notes for CAIRO:
 
 In order to set this up with a custom cost function first you'll need to setup an OMPL development environment in either Ubuntu 16.04 Desktop or Docker using this tutorial: https://jack-kawell.com/2019/06/24/installing-ompl/
 
-After that you'll want to clone [this repo](https://github.com/jgkawell/cairo-assistive-guiding.git) into the `ws_moveit/src` directory:
+After that you'll want to clone [this repo](https://github.com/cairo-robotics/custom_planning.git) into the `ws_moveit/src` directory:
 
 ```
 cd ws_moveit/src
-git clone https://github.com/jgkawell/cairo-assistive-guiding.git
+git clone https://github.com/cairo-robotics/custom_planning.git
 ```
 
-Once that is done you should be able to rebuild the workspace and then test it out:
+You'll also need to checkout the branch of the CAIRO fork of OMPL that contains the code for custom costs through ROS.
+
+```
+cd ompl
+git checkout custom-cost
+```
+
+Once that's done you should be able to rebuild and re-source the workspace:
 
 ```
 sudo catkin build
+source ./devel/setup.bash
 ```
 
-{insert instructions on how to set up Panda demo here}
+### Testing setup
+
+An easy way of testing the environment is with the Panda Rviz robot demo provided by MoveIt!. This demo is spelled out more fully [here](http://docs.ros.org/kinetic/api/moveit_tutorials/html/doc/quickstart_in_rviz/quickstart_in_rviz_tutorial.html), but we'll need to make a slight modification to the OMPL config to test out our setup.
+
+All we need to do is add a line to the `ompl_planning.yaml` file within the `panda_moveit_config` ROS package. To do this run the following commands:
 
 ```
-roslaunch panda_moveit_config demo.launch rviz_tutorial:=true
+roscd panda_moveit_config
+sudo nano config/ompl_planning.yaml
 ```
 
-If everything was set up correctly you should have the Rviz Panda robot demo up and running.
+And then add `optimization_objective: CustomObjective` inside the heading "RRTstarkConfigDefault" right under the "type" key. The final section should look like this:
+
+```
+  RRTstarkConfigDefault:
+    type: geometric::RRTstar
+    optimization_objective: CustomObjective
+    range: 0.0  # Max motion added to tree. ==> maxDistance_ default: 0.0, if 0.0, set on setup()
+    goal_bias: 0.05  # When close to goal select goal, with this probability? default: 0.05
+    delay_collision_checking: 1  # Stop collision checking as soon as C-free parent found. default
+```
+
+Once that is done you should be able to follow the tutorial [here](http://docs.ros.org/kinetic/api/moveit_tutorials/html/doc/quickstart_in_rviz/quickstart_in_rviz_tutorial.html) to test out that your custom installation of MoveIt! and OMPL are working with your new custom objective.
