@@ -130,7 +130,6 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   message_generation
-  custom_planners
 )
 
 include_directories(
