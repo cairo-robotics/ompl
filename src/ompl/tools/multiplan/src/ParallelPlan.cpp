@@ -97,10 +97,7 @@ ompl::base::PlannerStatus ompl::tools::ParallelPlan::solve(const base::PlannerTe
     foundSolCount_ = 0;
 
     time::point start = time::now();
-    // NOTE: Removing multithreaded planning behaviors since it breaks python calls
-    // Might add this back in if this technique works: https://docs.python.org/2/c-api/init.html
-    // Look under "Non-Python created threads"
-    std::vector<std::thread*> threads(1); //(planners_.size());
+    std::vector<std::thread*> threads(planners_.size());
 
     // Decide if we are combining solutions or just taking the first one
     if (hybridize)
