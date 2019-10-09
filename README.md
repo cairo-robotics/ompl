@@ -79,4 +79,14 @@ And then add `optimization_objective: CustomObjective` inside the heading "RRTst
     delay_collision_checking: 1  # Stop collision checking as soon as C-free parent found. default
 ```
 
-Once that is done you should be able to follow the tutorial [here](http://docs.ros.org/kinetic/api/moveit_tutorials/html/doc/quickstart_in_rviz/quickstart_in_rviz_tutorial.html) to test out that your custom installation of MoveIt! and OMPL are working with your new custom objective.
+By making this change you're requesting OMPL to use our CustomObjective that will call out to a ROS service that is ready to be called as `/custom_cost` in order to find the cost for each state in its motion planning. In order for this to work though, you'll need that service to be running. To do that you can simply `rosrun` any of the custom cost services within the `custom_planning` package you cloned into the workspace earlier.
+
+In other words, once you've used `roslaunch` to begin the Panda demo (`roslaunch panda_moveit_config demo.launch rviz_tutorial:=true`), you can simply run the below command to start a ROS cost service that will give out random costs when OMPL requests them:
+
+```
+rosrun custom_planning random_cost.py
+```
+
+Once that's done you should be able to follow the tutorial [here](http://docs.ros.org/kinetic/api/moveit_tutorials/html/doc/quickstart_in_rviz/quickstart_in_rviz_tutorial.html) to test out that your custom installation of MoveIt! and OMPL are working with your new custom objective.
+
+You'll notice that there are at least two custom cost ROS services for you to test within the `custom_planning` package. Note that you can run one, kill it, and then run another without stopping the MoveIt!/OMPL/Rviz Panda demo as long as no planning is currently being run. This shows the awesome modularity of this custom cost function solution.
