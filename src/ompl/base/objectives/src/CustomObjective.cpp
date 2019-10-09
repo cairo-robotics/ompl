@@ -26,7 +26,6 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
     float costValue;
     if (client.call(srv))
     {
-        ROS_INFO("Cost: %f", (float)srv.response.cost);
         costValue = srv.response.cost;
     }
     else
