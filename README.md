@@ -34,7 +34,7 @@ following commands:
     
 ##  Notes for CAIRO:
 
-In order to set this up with a custom cost function first you'll need to setup an OMPL development environment in either Ubuntu 16.04 Desktop or Docker using this tutorial: https://jack-kawell.com/2019/06/24/installing-ompl/
+In order to set this up with a custom cost function first you'll need to setup an OMPL development environment in either Ubuntu 16.04 Desktop or Docker using [this tutorial](https://jack-kawell.com/2019/06/24/installing-ompl/).
 
 After that you'll want to clone [this repo](https://github.com/cairo-robotics/custom_planning.git) into the `ws_moveit/src` directory:
 
