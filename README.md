@@ -34,4 +34,26 @@ following commands:
     
 Notes for CAIRO:
 ================
-Directory for demo changes is: /opt/ros/kinetic/share/panda_moveit_config
+
+In order to set this up with a custom cost function first you'll need to setup an OMPL development environment in either Ubuntu 16.04 Desktop or Docker using this tutorial: https://jack-kawell.com/2019/06/24/installing-ompl/
+
+After that you'll want to clone [this repo](https://github.com/jgkawell/cairo-assistive-guiding.git) into the `ws_moveit/src` directory:
+
+```
+cd ws_moveit/src
+git clone https://github.com/jgkawell/cairo-assistive-guiding.git
+```
+
+Once that is done you should be able to rebuild the workspace and then test it out:
+
+```
+sudo catkin build
+```
+
+{insert instructions on how to set up Panda demo here}
+
+```
+roslaunch panda_moveit_config demo.launch rviz_tutorial:=true
+```
+
+If everything was set up correctly you should have the Rviz Panda robot demo up and running.
