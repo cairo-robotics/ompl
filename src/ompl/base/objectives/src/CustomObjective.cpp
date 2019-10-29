@@ -10,6 +10,10 @@
 #include "ompl/CustomCost.h"
 #include <cstdlib>
 
+// Extracting state info
+#include <moveit/ompl_interface/parameterization/model_based_state_space.h>
+#include <stdio.h>
+
 ompl::base::CustomObjective::
 CustomObjective(const SpaceInformationPtr &si) :
     MinimaxObjective(si)
@@ -19,10 +23,20 @@ CustomObjective(const SpaceInformationPtr &si) :
 
 ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 {
+    // Pull out the model based state given by MoveIt!
+    const ompl_interface::ModelBasedStateSpace::StateType *state = s->as<ompl_interface::ModelBasedStateSpace::StateType>();
+
+    // Print the state
+    printf("State: ");
+    unsigned int dimension = si_->getStateSpace()->getDimension();
+    for (unsigned int i = 0; i < dimension; ++i)
+        printf("%f ", state->values[i]);
+    printf("\n");
 
     ros::NodeHandle n;
     ros::ServiceClient client = n.serviceClient<ompl::CustomCost>("custom_cost");
     ompl::CustomCost srv;
+    srv.request.x = 1.0;
     float costValue;
     if (client.call(srv))
     {
