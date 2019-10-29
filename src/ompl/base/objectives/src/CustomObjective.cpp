@@ -12,7 +12,6 @@
 
 // Extracting state info
 #include <moveit/ompl_interface/parameterization/model_based_state_space.h>
-#include <stdio.h>
 
 ompl::base::CustomObjective::
 CustomObjective(const SpaceInformationPtr &si) :
