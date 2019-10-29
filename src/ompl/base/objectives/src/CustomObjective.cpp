@@ -47,7 +47,7 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
     }
     else
     {
-        ROS_ERROR("Failed to call service custom_cost. Using clearance instead.");
+        ROS_WARN("Failed to call service custom_cost. Using clearance instead.");
         costValue = si_->getStateValidityChecker()->clearance(s);
     }
     
