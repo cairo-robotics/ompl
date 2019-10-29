@@ -23,20 +23,24 @@ CustomObjective(const SpaceInformationPtr &si) :
 
 ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 {
-    // Pull out the model based state given by MoveIt!
-    const ompl_interface::ModelBasedStateSpace::StateType *state = s->as<ompl_interface::ModelBasedStateSpace::StateType>();
-
-    // Print the state
-    printf("State: ");
-    unsigned int dimension = si_->getStateSpace()->getDimension();
-    for (unsigned int i = 0; i < dimension; ++i)
-        printf("%f ", state->values[i]);
-    printf("\n");
-
+    // Create ROS client
     ros::NodeHandle n;
     ros::ServiceClient client = n.serviceClient<ompl::CustomCost>("custom_cost");
     ompl::CustomCost srv;
-    srv.request.x = 1.0;
+
+    // Pull out the model based state given by MoveIt!
+    // NOTE: This asumes a ModelBasedStateSpace is used. May not be the case on all systems!!
+    const ompl_interface::ModelBasedStateSpace::StateType *state = s->as<ompl_interface::ModelBasedStateSpace::StateType>();
+    unsigned int dimension = si_->getStateSpace()->getDimension();
+
+    // Build the service request
+    srv.request.state.clear();
+    for (unsigned int i = 0; i < dimension; ++i)
+    {
+        srv.request.state.push_back(state->values[i]);
+    }
+
+    // Request cost from ROS server (if call successful use that cost, else use clearance)
     float costValue;
     if (client.call(srv))
     {
@@ -48,6 +52,7 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
         costValue = si_->getStateValidityChecker()->clearance(s);
     }
     
+    // Return cost as OMPL Cost object
     return Cost(costValue);
 }
 
