@@ -147,10 +147,11 @@ add_service_files(
   CustomCost.srv
 )
 
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
+generate_messages()
+
+add_executable(custom src/ompl/base/objectives/src/CustomObjective.cpp)
+target_link_libraries(custom ${catkin_LIBRARIES})
+add_dependencies(custom ompl_gencpp)
 
 # R is needed for running Planner Arena locally
 find_program(R_EXEC R)
