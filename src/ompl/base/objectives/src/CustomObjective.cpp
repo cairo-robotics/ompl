@@ -7,7 +7,7 @@
 
 // ROS Client/Server
 #include "ros/ros.h"
-#include "ompl/CustomCost.h"
+#include "moveit_msgs/CustomCost.h"
 #include <cstdlib>
 
 // Extracting state info
@@ -27,8 +27,8 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 
     // Create ROS client
     ros::NodeHandle n;
-    ros::ServiceClient client = n.serviceClient<ompl::CustomCost>("custom_cost");
-    ompl::CustomCost srv;
+    ros::ServiceClient client = n.serviceClient<moveit_msgs::CustomCost>("custom_cost");
+    moveit_msgs::CustomCost srv;
 
     // Pull out the model based state given by MoveIt!
     // NOTE: This asumes a ModelBasedStateSpace is used. May not be the case on all systems!!

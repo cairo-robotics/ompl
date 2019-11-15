@@ -125,12 +125,14 @@ if (FLANN_FOUND)
 endif()
 
 # Add ROS to OMPL for CustomObjective
-find_package(catkin REQUIRED COMPONENTS roscpp message_generation)
+find_package(catkin REQUIRED COMPONENTS roscpp message_generation std_msgs moveit_msgs)
 include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
-add_service_files(DIRECTORY srv FILES CustomCost.srv)
-generate_messages(DEPENDENCIES std_msgs)
-catkin_package(CATKIN_DEPENDS message_runtime std_msgs)
+catkin_package(CATKIN_DEPENDS message_runtime std_msgs moveit_msgs)
+
+add_library(custom src/ompl/base/objectives/src/CustomObjective.cpp)
+target_link_libraries(custom ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+add_dependencies(custom ${catkin_EXPORTED_TARGETS})
 
 # R is needed for running Planner Arena locally
 find_program(R_EXEC R)
