@@ -35,3 +35,7 @@ following commands:
 ##  Notes for CAIRO:
 
 In order to set this up with a custom cost function walk through this tutorial: https://jack-kawell.com/2019/10/29/custom-cost-function-for-ompl-moveit-through-ros/
+
+For more information on how the custom cost function server works in OMPL, look at `src/ompl/src/ompl/base/objectives/src/CustomObjective.cpp` and search for `opt_` in the file `src/ompl/src/ompl/geometric/planners/rrt/src/RRTstar.cpp`. The OptimizationObjective is the variable `opt_` within the RRT* planner.
+
+Better documentation is still to come...
