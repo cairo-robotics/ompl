@@ -125,10 +125,10 @@ if (FLANN_FOUND)
 endif()
 
 # Add ROS to OMPL for CustomObjective
-find_package(catkin REQUIRED COMPONENTS roscpp message_generation std_msgs moveit_msgs moveit)
+find_package(catkin REQUIRED COMPONENTS roscpp message_generation std_msgs moveit_msgs)
 include_directories(${catkin_INCLUDE_DIRS})
 link_directories(${catkin_LIBRARY_DIRS})
-catkin_package(CATKIN_DEPENDS message_runtime std_msgs moveit_msgs moveit)
+catkin_package(CATKIN_DEPENDS message_runtime std_msgs moveit_msgs)
 
 add_library(custom src/ompl/base/objectives/src/CustomObjective.cpp)
 target_link_libraries(custom ${catkin_LIBRARIES} ${Boost_LIBRARIES})
