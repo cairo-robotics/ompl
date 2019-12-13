@@ -43,10 +43,30 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
     }
 
     // Request cost from ROS server (if call successful use that cost, else use clearance)
-    float costValue;
+    ompl::base::Cost costValue;
     if (client.call(srv))
     {
-        costValue = srv.response.cost;
+        unsigned int type = srv.response.type;
+
+        switch (type)
+        {
+            case 0: // Use the returned cost
+                costValue = Cost(srv.response.cost);
+                break;
+            case 1: // Use infinite positive cost
+                costValue = identityCost();
+                break;
+            case 2: // Use infinite negative cost
+                costValue = infiniteCost();
+                break;
+            case 3: // Use clearance cost
+                costValue = Cost(si_->getStateValidityChecker()->clearance(s));
+                break;
+            default: // code to be executed if n doesn't match any cases
+                ROS_WARN("Invalid type value. Defaulting to clearance objective. Make sure your cost server is returning an int value 0-3.");
+                costValue = Cost(si_->getStateValidityChecker()->clearance(s));
+        }
+
         // Print warning again if connection to server is lost
         printWarning = true;
     }
@@ -58,11 +78,11 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
             ROS_WARN("Failed to call service custom_cost. Using clearance instead.");
             printWarning = false;
         }
-        costValue = si_->getStateValidityChecker()->clearance(s);
+        costValue = Cost(si_->getStateValidityChecker()->clearance(s));
     }
 
     // Return cost as OMPL Cost object
-    return Cost(costValue);
+    return costValue;
 }
 
 bool ompl::base::CustomObjective::isCostBetterThan(Cost c1, Cost c2) const
