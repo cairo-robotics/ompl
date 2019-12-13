@@ -23,7 +23,7 @@ CustomObjective(const SpaceInformationPtr &si) :
 ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
 {
     // Static local variable to make sure to only print warning once
-    static bool firstTime = true;
+    static bool printWarning = true;
 
     // Create ROS client
     ros::NodeHandle n;
@@ -47,13 +47,16 @@ ompl::base::Cost ompl::base::CustomObjective::stateCost(const State *s) const
     if (client.call(srv))
     {
         costValue = srv.response.cost;
+        // Print warning again if connection to server is lost
+        printWarning = true;
     }
     else
     {
-        if (firstTime)
+        // Only print the warning once
+        if (printWarning)
         {
             ROS_WARN("Failed to call service custom_cost. Using clearance instead.");
-            firstTime = false;
+            printWarning = false;
         }
         costValue = si_->getStateValidityChecker()->clearance(s);
     }
